@@ -20,7 +20,7 @@ It's based on the Arduino core for ESP8266 and needs these libraries:
 - Taurus Monospace Stencil
 
 ## Frame for the 11x11 Matrix:
-- [WS2812B 11x11 Frame on Thingiverse](#)
+- [WS2812B 11x11 Frame on Thingiverse](https://www.thingiverse.com/thing:4088421)
 
 ## Some Images:
 ![Alt text](Supplement/Screenshots/preview.gif?raw=true "Title")
