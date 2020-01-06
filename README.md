@@ -16,11 +16,14 @@ It's based on the Arduino core for ESP8266 and needs these libraries:
 - FS
 - WebSocketsServer
 
-Used Font:
+## Used Font:
 - Taurus Monospace Stencil
 
-Frame for the 11x11 Matrix:
+## Frame for the 11x11 Matrix:
 - [WS2812B 11x11 Frame on Thingiverse](#)
 
+## Some Images:
 ![Alt text](Supplement/Screenshots/preview.gif?raw=true "Title")
 ![Alt text](Supplement/Screenshots/prev1.png?raw=true "Title")
+![Alt text](Supplement/Screenshots/WebApp4.png?raw=true "Title")
+![Alt text](Supplement/Screenshots/Breadboard.png?raw=true "Title")
