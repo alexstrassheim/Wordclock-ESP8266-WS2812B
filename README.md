@@ -1,6 +1,6 @@
-# Wordclock-ESP8266-WS2812B
+# Simple Wordclock-ESP8266-WS2812B
 
-Wordclock implemented on an ESP8266 with WS2812B LED-Stripes
+Simple Wordclock - implemented on an ESP8266 with WS2812B LED-Stripes
 
 This is an implementation of the famous Wordclock on an ESP8266 using WS2812B LED-Stripes and LDR. The time is syncronized via NTP.
 The ESP8266 provides a simple color picker mobile web application. 
