@@ -25,5 +25,5 @@ It's based on the Arduino core for ESP8266 and needs these libraries:
 ## Some Images:
 ![Alt text](Supplement/Screenshots/preview.gif?raw=true "Title")
 ![Alt text](Supplement/Screenshots/prev1.png?raw=true "Title")
-![Alt text](Supplement/Screenshots/WebApp4.png?raw=true "Title")
+![Alt text](Supplement/Screenshots/WebApp4.PNG?raw=true "Title")
 ![Alt text](Supplement/Screenshots/Breadboard.png?raw=true "Title")
