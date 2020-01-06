@@ -3,7 +3,7 @@
 Simple Wordclock - implemented on an ESP8266 with WS2812B LED-Stripes
 
 This is an implementation of the famous Wordclock on an ESP8266 using WS2812B LED-Stripes and LDR. The time is syncronized via NTP.
-The ESP8266 provides a simple color picker mobile web application. 
+The ESP8266 provides a simple color picker mobile web application on http://wordclock.local after initial setup. 
 
 It's based on the Arduino core for ESP8266 and needs these libraries:
 
