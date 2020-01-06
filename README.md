@@ -22,4 +22,4 @@ Used Font:
 Frame for the 11x11 Matrix:
 - [WS2812B 11x11 Frame on Thingiverse](#)
 
-![alt text][./Supplement/Screenshots/prev1.png]
+![alt text][https://github.com/alexstrassheim/Wordclock-ESP8266-WS2812B/blob/master/Supplement/Screenshots/prev1.png?raw=true]
