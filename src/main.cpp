@@ -15,6 +15,7 @@
 #include <NTPClient.h>
 #include <FS.h>
 #include <WebSocketsServer.h>
+#include <Timezone.h>
 #include "WClock.h"
 
 #define FASTLED_ESP8266_RAW_PIN_ORDER
@@ -43,13 +44,17 @@ int ldrPIN = A0;
 int oldLDR = 0;
 int ldr = 0;
 
-
 int resetPin = 0; // NodeMCU Flash PIN 
 int buttonState = 0; 
 int lastButtonState = HIGH; 
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
 unsigned long debounceDelay = 50;    // the debounce time
 
+// Central European Time (Frankfurt, Paris)
+TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 60};     // Central European Summer Time
+TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European Standard Time
+Timezone CE(CEST, CET);
+TimeChangeRule *tcr;        //pointer to the time change rule, use to get TZ abbrev
 
 /*____________________________________________FORWARD DECLARATION__________________________________________________________*/
 void startWiFi();
@@ -65,6 +70,7 @@ String formatBytes(size_t bytes);
 void handleNotFound();
 void brightness();
 void resetCredentials();
+void printDateTime(time_t t, const char *tz);
 
 /*__________________________________________________________SETUP__________________________________________________________*/
 void setup()
@@ -93,10 +99,17 @@ void loop()
 
   timeClient.update();
   timeClient.getEpochTime();
-  // Serial.print(timeClient.getHours());
-  // Serial.print(":");
-  // Serial.println(timeClient.getMinutes());
-  wclock.showTime(timeClient.getHours(), timeClient.getMinutes(), timeClient.getSeconds());
+
+  time_t utc = timeClient.getEpochTime();
+  time_t local = CE.toLocal(utc, &tcr);
+  
+  // printDateTime(utc, "UTC");
+  printDateTime(local, tcr -> abbrev);
+
+  //Serial.print(timeClient.getHours());
+  //Serial.print(":");
+  //Serial.println(timeClient.getMinutes());
+  //wclock.showTime(timeClient.getHours(), timeClient.getMinutes(), timeClient.getSeconds());
 
   resetCredentials();
 }
@@ -339,4 +352,22 @@ void resetCredentials(){
   }
   
   lastButtonState = reading;
+}
+
+
+// format and print a time_t value, with a time zone appended.
+void printDateTime(time_t t, const char *tz)
+{
+    char buf[32];
+    char m[4];    // temporary storage for month string (DateStrings.cpp uses shared buffer)
+    strcpy(m, monthShortStr(month(t)));
+    sprintf(buf, "%.2d:%.2d:%.2d %s %.2d %s %d %s",
+        hour(t), minute(t), second(t), dayShortStr(weekday(t)), day(t), m, year(t), tz);
+   // Serial.println(buf);
+
+    Serial.print(hour(t));
+    Serial.print(":");
+    Serial.println(minute(t));
+
+    wclock.showTime(hour(t), minute(t), second(t));
 }
