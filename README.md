@@ -15,6 +15,7 @@ It's based on the Arduino core for ESP8266 and needs these libraries:
 - NTPClient
 - FS
 - WebSocketsServer
+- Timezone
 
 ## Used Font:
 - Taurus Monospace Stencil
