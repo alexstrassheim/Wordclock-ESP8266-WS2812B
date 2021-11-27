@@ -4,22 +4,24 @@
 // https://tttapa.github.io/ESP8266/Chap14%20-%20WebSocket.html 
 // https://github.com/wouterdevinck/wordclock/blob/master/firmware/wordclock.ino#L35
 // https://github.com/basti79/ESP8266-Wordclock/blob/master/ESP8266-Wordclock.ino
+// https://werner.rothschopf.net/201802_arduino_esp8266_ntp.htm
 
 
 #include <Arduino.h>
-#include <DNSServer.h>
-#include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <WiFiManager.h>
-#include <NTPClient.h>
-#include <FS.h>
 #include <WebSocketsServer.h>
-#include <Timezone.h>
+#include <time.h>
 #include "WClock.h"
 
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #include <FastLED.h>
+
+/* Configuration of NTP */
+#define MY_NTP_SERVER "de.pool.ntp.org"           
+#define MY_TZ "CET-1CEST,M3.5.0,M10.5.0/3" // Change timezone https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
+
 
 ESP8266WebServer server(80);    // Create a webserver object that listens for HTTP request on port 80
 WebSocketsServer webSocket(81); // create a websocket server on port 81
@@ -37,24 +39,20 @@ const char *mdnsName = "wordclock"; // Domain name for the mDNS responder
 WClock wclock;
 WiFiManager wifiManager;
 
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "de.pool.ntp.org", 60 * 60, 60 * 60 * 1000);
+time_t now;
+tm tm;    
 
 int ldrPIN = A0;
 int oldLDR = 0;
 int ldr = 0;
+
+int updateTime = 0;
 
 int resetPin = 0; // NodeMCU Flash PIN 
 int buttonState = 0; 
 int lastButtonState = HIGH; 
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
 unsigned long debounceDelay = 50;    // the debounce time
-
-// Central European Time (Frankfurt, Paris)
-TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 60};     // Central European Summer Time
-TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European Standard Time
-Timezone CE(CEST, CET);
-TimeChangeRule *tcr;        //pointer to the time change rule, use to get TZ abbrev
 
 /*____________________________________________FORWARD DECLARATION__________________________________________________________*/
 void startWiFi();
@@ -70,13 +68,15 @@ String formatBytes(size_t bytes);
 void handleNotFound();
 void brightness();
 void resetCredentials();
-void printDateTime(time_t t, const char *tz);
+
 
 /*__________________________________________________________SETUP__________________________________________________________*/
 void setup()
 {
   Serial.begin(9600);
   delay(100);
+
+  configTime(MY_TZ, MY_NTP_SERVER);
 
   startWiFi();
   startSPIFFS();
@@ -86,6 +86,10 @@ void setup()
   startClock();
 
   pinMode(resetPin, INPUT_PULLUP);
+
+  time(&now);   
+  localtime_r(&now, &tm);
+
 }
 
 /*__________________________________________________________LOOP__________________________________________________________*/
@@ -96,20 +100,30 @@ void loop()
   server.handleClient();
 
   brightness();
-
-  timeClient.update();
-  timeClient.getEpochTime();
-
-  time_t utc = timeClient.getEpochTime();
-  time_t local = CE.toLocal(utc, &tcr);
   
-  // printDateTime(utc, "UTC");
-  printDateTime(local, tcr -> abbrev);
+  static const unsigned long REFRESH_INTERVAL = 1000; // ms
+  static unsigned long lastRefreshTime = 0;
 
-  //Serial.print(timeClient.getHours());
-  //Serial.print(":");
-  //Serial.println(timeClient.getMinutes());
-  //wclock.showTime(timeClient.getHours(), timeClient.getMinutes(), timeClient.getSeconds());
+    if(millis() - lastRefreshTime >= REFRESH_INTERVAL)
+    {
+        lastRefreshTime += REFRESH_INTERVAL;
+        time(&now);                       // read the current time
+        localtime_r(&now, &tm);
+        if(updateTime != tm.tm_min){
+          Serial.print(tm.tm_hour);
+          Serial.print(":");
+          Serial.println(tm.tm_min);
+        }
+        updateTime = tm.tm_min;      
+        wclock.showTime(tm.tm_hour, tm.tm_min, tm.tm_sec);
+        wclock.update();
+    }
+
+
+
+ 
+
+  
 
   resetCredentials();
 }
@@ -245,9 +259,10 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t lenght)
       // Serial.print(", ");
       // Serial.print(b);
       // Serial.println(")");
-
       wclock.setRGBColor(r, g, b);
       webSocket.sendTXT(0, "OK");
+      delay(20);
+      wclock.update();
     }
     break;
   }
@@ -268,6 +283,7 @@ String formatBytes(size_t bytes)
   {
     return String(bytes / 1024.0 / 1024.0) + "MB";
   }
+   return "";
 }
 
 String getContentType(String filename)
@@ -352,22 +368,4 @@ void resetCredentials(){
   }
   
   lastButtonState = reading;
-}
-
-
-// format and print a time_t value, with a time zone appended.
-void printDateTime(time_t t, const char *tz)
-{
-    char buf[32];
-    char m[4];    // temporary storage for month string (DateStrings.cpp uses shared buffer)
-    strcpy(m, monthShortStr(month(t)));
-    sprintf(buf, "%.2d:%.2d:%.2d %s %.2d %s %d %s",
-        hour(t), minute(t), second(t), dayShortStr(weekday(t)), day(t), m, year(t), tz);
-   // Serial.println(buf);
-
-    Serial.print(hour(t));
-    Serial.print(":");
-    Serial.println(minute(t));
-
-    wclock.showTime(hour(t), minute(t), second(t));
 }

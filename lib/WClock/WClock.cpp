@@ -271,3 +271,8 @@ void WClock::setRGBColor(int r, int g, int b)
     }
     FastLED.show();
 }
+
+void WClock::update()
+{
+    FastLED.show();
+}

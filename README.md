@@ -14,7 +14,7 @@ It's based on the Arduino core for ESP8266 and needs these libraries:
 - WiFiManager
 - NTPClient
 - FS
-- WebSocketsServer
+- WebSockets
 - Timezone
 
 ## Used Font:

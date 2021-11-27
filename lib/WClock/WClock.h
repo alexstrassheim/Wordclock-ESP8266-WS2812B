@@ -1,7 +1,9 @@
 #ifndef WClock_h
 #define WClock_h
 
+#define FASTLED_INTERRUPT_RETRY_COUNT 0
 #define FASTLED_ALLOW_INTERRUPTS 0
+
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #include <FastLED.h>
 
@@ -39,6 +41,7 @@ class WClock {
         void drawHeart();
         void drawMatrix();
         void resetAndBlack();
+        void update();
 
         uint16_t XY( uint8_t y, uint8_t x);
         void setLed(int row, int col, boolean on);
