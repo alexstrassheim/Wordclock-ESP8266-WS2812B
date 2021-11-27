@@ -7,15 +7,20 @@ The ESP8266 provides a simple color picker mobile web application on http://word
 
 It's based on the Arduino core for ESP8266 and needs these libraries:
 
-- DNSServer
-- ESP8266WiFi
-- ESP8266WebServer
-- ESP8266mDNS
-- WiFiManager
-- NTPClient
-- FS
-- WebSockets
-- Timezone
+```
+[env:nodemcuv2]
+platform = espressif8266@2.6.3
+board = nodemcuv2
+framework = arduino
+lib_deps = 
+	fastled/FastLED@^3.4.0
+	tzapu/WiFiManager@^0.16.0
+	arduino-libraries/NTPClient@^3.1.0
+	links2004/WebSockets@^2.3.6
+	jchristensen/Timezone@^1.2.4
+	paulstoffregen/Time@^1.6.1
+
+```
 
 ## Used Font:
 - Taurus Monospace Stencil
